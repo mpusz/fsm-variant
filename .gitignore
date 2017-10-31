@@ -30,3 +30,12 @@
 *.exe
 *.out
 *.app
+
+# IDE-specific
+.idea/
+.vs/
+cmake-build-*/
+
+# Conan
+*.pyc
+test_package/build
