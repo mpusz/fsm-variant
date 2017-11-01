@@ -60,8 +60,8 @@ public:
 
   std::optional<system_clock::duration> connection_duration() const
   {
-    if(const auto* state = std::get_if<state_connected>(&get_state()))
-      return system_clock::now() - state->timestamp;
+    if(const auto* current_state = std::get_if<state_connected>(&get_state()))
+      return system_clock::now() - current_state->timestamp;
     else
       return std::nullopt;
   }

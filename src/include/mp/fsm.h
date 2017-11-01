@@ -41,7 +41,7 @@ namespace mp {
     {
       Derived& fsm = static_cast<Derived&>(*this);
       auto new_state = std::visit(
-          [&](auto& state, const auto& event) -> std::optional<StateVariant> { return fsm.on_event(state, event); },
+          [&](auto& s, const auto& e) -> std::optional<StateVariant> { return fsm.on_event(s, e); },
           state_, event);
       if(new_state) {
         const bool state_change = state_.index() != new_state->index();
