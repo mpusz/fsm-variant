@@ -24,9 +24,6 @@ cmake_minimum_required(VERSION 3.8)
 project(fsm_variant
         VERSION 0.0.1)
 
-set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-
 # set path to custom cmake modules
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/../cmake/common/cmake")
 
@@ -35,10 +32,11 @@ include(tools)
 
 # library definition
 add_library(fsm INTERFACE)
-add_library(mp::fsm ALIAS fsm)
+target_compile_features(fsm INTERFACE cxx_std_17)
 target_include_directories(fsm INTERFACE
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
         $<INSTALL_INTERFACE:include>)
+add_library(mp::fsm ALIAS fsm)
 
 # installation info
 install(TARGETS fsm EXPORT ${CMAKE_PROJECT_NAME}Targets
