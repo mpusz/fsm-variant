@@ -20,30 +20,22 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-cmake_minimum_required(VERSION 3.8)
-project(fsm
-        VERSION 1.0.0)
+from conans import ConanFile, CMake
 
-# set path to custom cmake modules
-list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/../cmake/common/cmake")
+class FsmVariantTestConan(ConanFile):
+    settings = "os", "compiler", "build_type", "arch"
+    generators = "cmake_paths"
 
-# include common tools and workarounds
-include(tools)
+    def build(self):
+        cmake = CMake(self)
+        cmake.configure()
+        cmake.build()
 
-# library definition
-add_library(fsm INTERFACE)
-target_compile_features(fsm INTERFACE cxx_std_17)
-target_include_directories(fsm INTERFACE
-        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-        $<INSTALL_INTERFACE:include>)
-add_library(mp::fsm ALIAS fsm)
+    def imports(self):
+        self.copy("*.dll", dst="bin", src="bin")
+        self.copy("*.dylib*", dst="bin", src="lib")
+        self.copy('*.so*', dst='bin', src='lib')
 
-# installation info
-install(TARGETS fsm EXPORT ${CMAKE_PROJECT_NAME}Targets
-        INCLUDES DESTINATION include)
-install(DIRECTORY include/mp
-        DESTINATION include
-        COMPONENT Devel)
-
-# generate configuration files and install the package
-configure_and_install(../cmake/common/cmake/simple_package-config.cmake.in SameMajorVersion)
+    def test(self):
+        cmake = CMake(self)
+        self.run("ctest -VV -C %s" % cmake.build_type)

@@ -20,8 +20,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-cmake_minimum_required(VERSION 3.5)
-project(fsm_variant)
+cmake_minimum_required(VERSION 3.8)
+project(fsm_dev)
 
 # set path to custom cmake modules
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake/common/cmake")
@@ -36,4 +36,4 @@ include(compile_flags)
 add_subdirectory(src)
 
 # add_examples
-add_subdirectory(examples)
+add_subdirectory(example)

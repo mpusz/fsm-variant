@@ -1,6 +1,6 @@
 // The MIT License (MIT)
 //
-// Copyright (c) 2017 Mateusz Pusz
+// Copyright (c) 2016 Mateusz Pusz
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -20,30 +20,37 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#pragma once
+#include <mp/fsm.h>
+#include <iostream>
 
-#include <optional>
-#include <variant>
+struct event_connect {};
+struct event_disconnect {};
 
-namespace mp {
+struct state_idle {};
+struct state_connected {};
 
-  template<typename Derived, typename StateVariant>
-  class fsm {
-    StateVariant state_;
-  public:
-    const StateVariant& get_state() const { return state_; }
-    StateVariant& get_state() { return state_; }
+using state = std::variant<state_idle, state_connected>;
 
-    template<typename Event>
-    void dispatch(Event&& event)
-    {
-      Derived& child = static_cast<Derived&>(*this);
-      auto new_state = std::visit(
-          [&](auto& s) -> std::optional<StateVariant> { return child.on_event(s, std::forward<Event>(event)); },
-          state_);
-      if(new_state)
-        state_ = *std::move(new_state);
-    }
-  };
+class sample_fsm : public mp::fsm<sample_fsm, state> {
+public:
+  template<typename State, typename Event>
+  auto on_event(State&, const Event&) { return std::nullopt; }
 
-}  // namespace mp
+  auto on_event(state_idle&, const event_connect&) { return state_connected{}; }
+  auto on_event(state_connected&, const event_disconnect&) { return state_idle{}; }
+};
+
+int main()
+{
+  try {
+    sample_fsm fsm;
+    fsm.dispatch(event_connect());
+    fsm.dispatch(event_disconnect());
+  }
+  catch(const std::exception& ex) {
+    std::cerr << "Unhandled std exception caught: " << ex.what() << '\n';
+  }
+  catch(...) {
+    std::cerr << "Unhandled unknown exception caught\n";
+  }
+}

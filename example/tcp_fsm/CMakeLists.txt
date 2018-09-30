@@ -1,6 +1,6 @@
 # The MIT License (MIT)
 #
-# Copyright (c) 2017 Mateusz Pusz
+# Copyright (c) 2016 Mateusz Pusz
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -20,23 +20,9 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-cmake_minimum_required(VERSION 3.8)
-project(fsm_examples)
 
-# set path to custom cmake modules
-list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/../cmake/common/cmake")
-
-# include common tools and workarounds
-include(tools)
-
-# use Conan configuration if available
-conan_init()
-
-# add dependencies
-if(NOT TARGET mp::fsm)
-    find_package(fsm_variant CONFIG REQUIRED)
-endif()
-
-add_executable(connection_fsm connection_fsm.cpp)
-target_link_libraries(connection_fsm
-        PRIVATE mp::fsm)
+add_executable(tcp_fsm
+    tcp_fsm.h
+    tcp_fsm_tests.cpp
+)
+target_link_libraries(tcp_fsm PRIVATE mp::fsm)

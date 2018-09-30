@@ -20,30 +20,39 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-cmake_minimum_required(VERSION 3.8)
-project(fsm
-        VERSION 1.0.0)
+from conans import ConanFile, CMake
 
-# set path to custom cmake modules
-list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/../cmake/common/cmake")
+class FsmVariantConan(ConanFile):
+    name = "fsm-variant"
+    version = "1.0.0"
+    description = "Finite State Machine implementation using `std::variant` and `std::optional` under the hood"
+    author = "Mateusz Pusz"
+    license = "https://github.com/mpusz/fsm-variant/blob/master/LICENSE.md"
+    url = "https://github.com/mpusz/fsm-variant"
+    exports = ["LICENSE.md"]
+    settings = "os", "compiler", "build_type", "arch"
+    scm = {
+        "type": "git",
+        "url": "auto",
+        "revision": "auto"
+    }
 
-# include common tools and workarounds
-include(tools)
+    def _configure_cmake(self):
+        cmake = CMake(self)
+        cmake.configure(source_folder="src")
+        return cmake
 
-# library definition
-add_library(fsm INTERFACE)
-target_compile_features(fsm INTERFACE cxx_std_17)
-target_include_directories(fsm INTERFACE
-        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-        $<INSTALL_INTERFACE:include>)
-add_library(mp::fsm ALIAS fsm)
+    def build(self):
+        cmake = self._configure_cmake()
+        cmake.build()
 
-# installation info
-install(TARGETS fsm EXPORT ${CMAKE_PROJECT_NAME}Targets
-        INCLUDES DESTINATION include)
-install(DIRECTORY include/mp
-        DESTINATION include
-        COMPONENT Devel)
+    def package(self):
+        self.copy("license*", dst="licenses",  ignore_case=True, keep_path=False)
+        cmake = self._configure_cmake()
+        cmake.install()
 
-# generate configuration files and install the package
-configure_and_install(../cmake/common/cmake/simple_package-config.cmake.in SameMajorVersion)
+    def package_info(self):
+        self.cpp_info.libs = ["fsm"]
+
+    def package_id(self):
+        self.info.header_only()

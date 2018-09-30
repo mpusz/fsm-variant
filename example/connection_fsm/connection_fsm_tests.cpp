@@ -20,30 +20,46 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#pragma once
+#include "connection_fsm.h"
 
-#include <optional>
-#include <variant>
+template<typename Fsm, typename... Events>
+void dispatch(Fsm& fsm, Events&&... events)
+{
+  (fsm.dispatch(std::forward<Events>(events)), ...);
+}
 
-namespace mp {
+void sequence_1()
+{
+  std::cout << "\nSequence #1\n";
+  connection_fsm fsm;
+  dispatch(fsm, event_connect{"train-it.eu"}, event_connected{}, event_disconnect{});
+}
 
-  template<typename Derived, typename StateVariant>
-  class fsm {
-    StateVariant state_;
-  public:
-    const StateVariant& get_state() const { return state_; }
-    StateVariant& get_state() { return state_; }
+void sequence_2()
+{
+  std::cout << "\nSequence #2\n";
+  connection_fsm fsm;
+  dispatch(fsm, event_connect{"train-it.eu"}, event_timeout{}, event_connected{}, event_disconnect{});
+}
 
-    template<typename Event>
-    void dispatch(Event&& event)
-    {
-      Derived& child = static_cast<Derived&>(*this);
-      auto new_state = std::visit(
-          [&](auto& s) -> std::optional<StateVariant> { return child.on_event(s, std::forward<Event>(event)); },
-          state_);
-      if(new_state)
-        state_ = *std::move(new_state);
-    }
-  };
+void sequence_3()
+{
+  std::cout << "\nSequence #3\n";
+  connection_fsm fsm;
+  dispatch(fsm, event_connect{"train-it.eu"}, event_timeout{}, event_timeout{}, event_timeout{});
+}
 
-}  // namespace mp
+int main()
+{
+  try {
+    sequence_1();
+    sequence_2();
+    sequence_3();
+  }
+  catch(const std::exception& ex) {
+    std::cerr << "Unhandled std exception caught: " << ex.what() << '\n';
+  }
+  catch(...) {
+    std::cerr << "Unhandled unknown exception caught\n";
+  }
+}

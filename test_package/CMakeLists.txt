@@ -1,6 +1,6 @@
 # The MIT License (MIT)
 #
-# Copyright (c) 2017 Mateusz Pusz
+# Copyright (c) 2016 Mateusz Pusz
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -21,29 +21,14 @@
 # SOFTWARE.
 
 cmake_minimum_required(VERSION 3.8)
-project(fsm
-        VERSION 1.0.0)
+project(fsm_package_test)
 
-# set path to custom cmake modules
-list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/../cmake/common/cmake")
+include(${CMAKE_BINARY_DIR}/conan_paths.cmake)
 
-# include common tools and workarounds
-include(tools)
+find_package(fsm CONFIG REQUIRED)
 
-# library definition
-add_library(fsm INTERFACE)
-target_compile_features(fsm INTERFACE cxx_std_17)
-target_include_directories(fsm INTERFACE
-        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-        $<INSTALL_INTERFACE:include>)
-add_library(mp::fsm ALIAS fsm)
-
-# installation info
-install(TARGETS fsm EXPORT ${CMAKE_PROJECT_NAME}Targets
-        INCLUDES DESTINATION include)
-install(DIRECTORY include/mp
-        DESTINATION include
-        COMPONENT Devel)
-
-# generate configuration files and install the package
-configure_and_install(../cmake/common/cmake/simple_package-config.cmake.in SameMajorVersion)
+enable_testing()
+add_executable(sample sample.cpp)
+target_link_libraries(sample PRIVATE mp::fsm)
+add_test(NAME fsm.sample
+    COMMAND sample)
